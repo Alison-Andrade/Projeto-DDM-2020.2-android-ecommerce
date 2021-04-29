@@ -5,12 +5,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.tasks.Continuation
 import com.google.android.gms.tasks.Task
+import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
@@ -24,9 +28,15 @@ class NewProductActivity: AppCompatActivity() {
     private var firebaseStore: FirebaseStorage? = null
     private var storageReference: StorageReference? = null
 
+    private lateinit var database: DatabaseReference
+
     private lateinit var btnChooseImage: Button
     private lateinit var btnNewProduct: Button
     private lateinit var imagePreview: ImageView
+
+    private lateinit var editTextName: TextInputEditText
+    private lateinit var editTextPrice: TextInputEditText
+    private lateinit var editTextQuantity: TextInputEditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +48,13 @@ class NewProductActivity: AppCompatActivity() {
         imagePreview = findViewById(R.id.image_preview)
         btnChooseImage = findViewById(R.id.btn_choose_image)
         btnChooseImage.setOnClickListener { launchGallery() }
+
+        btnNewProduct = findViewById(R.id.cadastrar_produto)
+        btnNewProduct.setOnClickListener { cadastrarProduto() }
+
+        editTextName = findViewById(R.id.editTextName)
+        editTextPrice = findViewById(R.id.editTextPrice)
+        editTextQuantity = findViewById(R.id.editTextQuantity)
 
     }
 
@@ -65,23 +82,28 @@ class NewProductActivity: AppCompatActivity() {
         }
     }
 
-    private fun addUploadRecordToDb(uri: String){
-//        val db = FirebaseFirestore.getInstance()
-//
-//        val data = HashMap<String, Any>()
-//        data["imageUrl"] = uri
-//
-//        db.collection("posts")
-//                .add(data)
-//                .addOnSuccessListener { documentReference ->
-//                    Toast.makeText(this, "Saved to DB", Toast.LENGTH_LONG).show()
-//                }
-//                .addOnFailureListener { e ->
-//                    Toast.makeText(this, "Error saving to DB", Toast.LENGTH_LONG).show()
-//                }
+    private fun addUploadRecordToDb(name: String, price: Double, quantity: Int, uri: String){
+
+        database = FirebaseDatabase
+            .getInstance("https://android-ecommerce-d9d57-default-rtdb.firebaseio.com/")
+            .getReference("produtos")
+
+        val productId = database.push().key
+        val product = Product(productId, name, price, quantity, uri)
+        database.child(productId.toString()).setValue(product).addOnCompleteListener {
+            Log.d("SUCCESS", productId)
+            Toast.makeText(this, "Novo produto adcionado ao banco de dados", Toast.LENGTH_SHORT).show()
+
+            finish()
+        }
     }
 
-    private fun uploadImage(){
+    private fun cadastrarProduto(){
+
+        var name = editTextName.text.toString().trim()
+        var price = editTextPrice.text.toString().trim()
+        var quantity = editTextQuantity.text.toString().trim()
+
         if(filePath != null){
             val ref = storageReference?.child("uploads/" + UUID.randomUUID().toString())
             val uploadTask = ref?.putFile(filePath!!)
@@ -96,7 +118,7 @@ class NewProductActivity: AppCompatActivity() {
             })?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val downloadUri = task.result
-                    addUploadRecordToDb(downloadUri.toString())
+                    addUploadRecordToDb(name, price.toDouble(), quantity.toInt(), downloadUri.toString())
                 } else {
                     // Handle failures
                 }

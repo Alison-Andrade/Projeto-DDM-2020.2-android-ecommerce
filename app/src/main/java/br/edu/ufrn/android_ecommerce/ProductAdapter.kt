@@ -30,7 +30,7 @@ class ProductAdapter(var context: Context, var products: List<Product> = arrayLi
         fun bindProduct(product: Product) {
             itemView.findViewById<TextView>(R.id.product_name).text = product.name
             itemView.findViewById<TextView>(R.id.product_price).text = "$${product.price.toString()}"
-            Picasso.get().load("http://192.168.1.4:3333"+product.image).fit().into(itemView.findViewById<ImageView>(R.id.product_image))
+            Picasso.get().load(product.image).fit().into(itemView.findViewById<ImageView>(R.id.product_image))
 
             Observable.create(ObservableOnSubscribe<MutableList<CartItem>> {
 

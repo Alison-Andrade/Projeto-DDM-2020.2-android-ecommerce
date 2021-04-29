@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 import io.paperdb.Paper
 import retrofit2.Call
 import retrofit2.Callback
@@ -18,12 +19,12 @@ import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var apiService: APIService
     private lateinit var productAdapter: ProductAdapter
 
     private var products = listOf<Product>()
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +34,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         setSupportActionBar(findViewById(R.id.toolBar))
-        apiService = APIConfig.getRetrofitClient(this).create(APIService::class.java)
 
         val swipeRefreshLayout =  findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout)
         swipeRefreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.design_default_color_primary))
@@ -81,29 +81,38 @@ class MainActivity : AppCompatActivity() {
 
     fun getProducts() {
 
-        apiService.getProducts().enqueue(object : Callback<List<Product>> {
-            override fun onFailure(call: Call<List<Product>>, t: Throwable) {
-                print(t.message)
-                Log.d("Data error", t.message)
-                Toast.makeText(this@MainActivity, t.message, Toast.LENGTH_SHORT).show()
-            }
+        database = FirebaseDatabase
+            .getInstance("https://android-ecommerce-d9d57-default-rtdb.firebaseio.com/")
+            .getReference("produtos")
 
-            override fun onResponse(call: Call<List<Product>>, response: Response<List<Product>>) {
+        database.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    val productList = mutableListOf<Product>()
+
+                    for (productSnapshot in snapshot.children) {
+                        val product = productSnapshot.getValue(Product::class.java)
+                        product?.id = productSnapshot.key
+
+                        product?.let { productList.add(it) }
+                        Log.d("SUCCESS", product?.image)
+                    }
+
+                    products = productList
+                }
 
                 findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout).isRefreshing = false
-                Log.d("SUCCESS", response.code().toString())
-                if(response.code() == 200) {
-                    products = response.body()!!
-                    for (product in products) {
-                        Log.d("SUCCESS", product.image)
-                    }
-                }
 
                 productAdapter = ProductAdapter(this@MainActivity, products)
 
                 findViewById<RecyclerView>(R.id.products_recyclerView).adapter = productAdapter
                 productAdapter.notifyDataSetChanged()
             }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
         })
     }
 }

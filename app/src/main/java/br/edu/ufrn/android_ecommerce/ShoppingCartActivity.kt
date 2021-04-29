@@ -75,18 +75,10 @@ class ShoppingCartActivity: AppCompatActivity() {
                 val order = Order(orderId, auth.uid, ShoppingCart.getCart(), totalPrice)
                 database.child(orderId.toString()).setValue(order).addOnCompleteListener {
                     Log.d("SUCCESS", orderId)
+
+                    ShoppingCart.clearCart()
+                    finish()
                 }
-
-
-//                var pushRef: DatabaseReference = database.child("pedidos")
-//                val updates: MutableMap<String, Any> = HashMap()
-//                updates[auth.currentUser.uid+DateTimeFormatter.ISO_INSTANT.format(Instant.now()).toString()] = ShoppingCart.getCart()
-//                pushRef.setValue(updates)
-
-                ShoppingCart.clearCart()
-                finish()
-
-
             }
         }
     }

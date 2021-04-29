@@ -17,7 +17,7 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             app:titleTextColor="@color/purple_500"
-            app:title="Menu de usuário"
+            app:title="Menu de Admin"
             android:background="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"/>
@@ -48,7 +48,13 @@
             android:layout_marginTop="60dp">
 
             <Button
-                android:id="@+id/button_pedidos"
+                android:id="@+id/btn_add_product"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Adicionar Novo Produto" />
+
+            <Button
+                android:id="@+id/button_pedidos_admin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Seus pedidos" />

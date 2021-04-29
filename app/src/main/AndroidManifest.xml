@@ -22,6 +22,10 @@
         <activity android:name=".ShoppingCartActivity"></activity>
         <activity android:name=".LoginActivity"></activity>
         <activity android:name=".SignUpActivity"></activity>
+        <activity android:name=".UserMenuActivity"></activity>
+        <activity android:name=".AdminMenuActivity"></activity>
+        <activity android:name=".OrderListActivity"></activity>
+        <activity android:name=".NewProductActivity"></activity>
     </application>
 
 </manifest>

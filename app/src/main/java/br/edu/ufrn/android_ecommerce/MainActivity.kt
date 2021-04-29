@@ -30,8 +30,6 @@ class MainActivity : AppCompatActivity() {
         Paper.init(this)
         auth = FirebaseAuth.getInstance()
 
-        val currentUser = auth.currentUser
-
         setContentView(R.layout.activity_main)
 
         setSupportActionBar(findViewById(R.id.toolBar))
@@ -43,28 +41,42 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<RecyclerView>(R.id.products_recyclerView).layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
 
-        findViewById<TextView>(R.id.cart_size).text = ShoppingCart.getShoppingCartSize().toString()
-
         getProducts()
 
         findViewById<RelativeLayout>(R.id.showCart).setOnClickListener{
             startActivity(Intent(this, ShoppingCartActivity::class.java))
         }
 
-        if (currentUser == null) {
-            findViewById<ImageButton>(R.id.userButton).setOnClickListener{
-                startActivity(Intent(this, LoginActivity::class.java))
-            }
-        } else {
-            findViewById<ImageButton>(R.id.userButton).setOnClickListener{
-                startActivity(Intent(this, UserMenuActivity::class.java))
-            }
-        }
-
         swipeRefreshLayout.setOnRefreshListener {
             getProducts()
         }
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        findViewById<TextView>(R.id.cart_size).text = ShoppingCart.getShoppingCartSize().toString()
+
+        var currentUser = auth.currentUser
+
+        when {
+            currentUser?.uid == "JMBeGDaBeDWeT0dpvNIa3DDb2zS2" -> {
+                findViewById<ImageButton>(R.id.userButton).setOnClickListener{
+                    startActivity(Intent(this, AdminMenuActivity::class.java))
+                }
+            }
+            currentUser != null -> {
+                findViewById<ImageButton>(R.id.userButton).setOnClickListener{
+                    startActivity(Intent(this, UserMenuActivity::class.java))
+                }
+            }
+            else -> {
+                findViewById<ImageButton>(R.id.userButton).setOnClickListener{
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
+            }
+        }
     }
 
     fun getProducts() {

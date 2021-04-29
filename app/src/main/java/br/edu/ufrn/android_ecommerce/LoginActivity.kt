@@ -2,7 +2,9 @@ package br.edu.ufrn.android_ecommerce
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.Patterns
+import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -65,10 +67,16 @@ class LoginActivity : AppCompatActivity()  {
             return
         }
 
+        progressBar.visibility = View.VISIBLE
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                val user = auth.currentUser
+
+                Log.d("LOGIN", "Conectado como ${user.displayName}")
+
                 finish()
             } else {
+                progressBar.visibility = View.GONE
                 editTextPassword.setText("")
                 Toast.makeText(applicationContext, task.exception!!.message, Toast.LENGTH_SHORT).show()
             }

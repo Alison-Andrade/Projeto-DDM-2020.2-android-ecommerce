@@ -10,7 +10,7 @@ class ShoppingCart {
         fun addItem(cartItem: CartItem) {
             val cart = ShoppingCart.getCart()
 
-            val targetItem = cart.singleOrNull {it.product.id == cartItem.product.id}
+            val targetItem = cart.singleOrNull {it.product?.id == cartItem.product?.id}
                 if (targetItem == null) {
                     cartItem.quantity++
                     cart.add(cartItem)
@@ -23,10 +23,13 @@ class ShoppingCart {
         fun removeItem(cartItem: CartItem, context: Context) {
             val cart = ShoppingCart.getCart()
 
-            val targetItem = cart.singleOrNull { it.product.id == cartItem.product.id }
+            val targetItem = cart.singleOrNull { it.product?.id == cartItem.product?.id }
             if (targetItem != null) {
                 if (targetItem.quantity > 0) {
                     targetItem.quantity--
+                    if (targetItem.quantity <= 0) {
+                        cart.remove(targetItem)
+                    }
                 } else {
                     cart.remove(targetItem)
                 }
@@ -35,7 +38,24 @@ class ShoppingCart {
             ShoppingCart.saveCart(cart)
         }
 
-        fun saveCart(cart: MutableList<CartItem>) {
+        fun clearCart() {
+            val cart = ShoppingCart.getCart()
+
+            val i = cart.iterator()
+
+            while (i.hasNext()) {
+                val item = i.next()
+                i.remove()
+            }
+
+//            cart.forEach {
+//                cart.remove(it)
+//            }
+
+            ShoppingCart.saveCart(cart)
+        }
+
+        private fun saveCart(cart: MutableList<CartItem>) {
             Paper.book().write("cart", cart)
         }
 

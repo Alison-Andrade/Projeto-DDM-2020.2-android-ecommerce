@@ -13,10 +13,10 @@ class ShoppingCartAdapter(var context: Context, var cartItems: List<CartItem>) :
 
     class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
         fun bindItem(cartItem: CartItem) {
-            Picasso.get().load("http://192.168.1.4:3333"+cartItem.product.image).fit().into(itemView.findViewById<ImageView>(R.id.product_image))
+            Picasso.get().load("http://192.168.1.4:3333"+cartItem.product?.image).fit().into(itemView.findViewById<ImageView>(R.id.product_image))
 
-            itemView.findViewById<TextView>(R.id.product_name).text = cartItem.product.name
-            itemView.findViewById<TextView>(R.id.product_price).text = "$${cartItem.product.price }"
+            itemView.findViewById<TextView>(R.id.product_name).text = cartItem.product?.name
+            itemView.findViewById<TextView>(R.id.product_price).text = "$${cartItem.product?.price }"
             itemView.findViewById<TextView>(R.id.product_quantity).text = cartItem.quantity.toString()
 
         }
